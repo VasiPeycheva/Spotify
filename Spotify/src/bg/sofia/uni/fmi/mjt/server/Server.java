@@ -6,9 +6,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import bg.sofia.uni.fmi.mjt.Logger.FileLogger;
-import bg.sofia.uni.fmi.mjt.Logger.Level;
-import bg.sofia.uni.fmi.mjt.Logger.Logger;
+import bg.sofia.uni.fmi.mjt.logger.FileLogger;
+import bg.sofia.uni.fmi.mjt.logger.Level;
+import bg.sofia.uni.fmi.mjt.logger.Logger;
 
 public class Server {
 

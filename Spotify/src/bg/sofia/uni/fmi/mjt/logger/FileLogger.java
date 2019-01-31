@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.Logger;
+package bg.sofia.uni.fmi.mjt.logger;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
