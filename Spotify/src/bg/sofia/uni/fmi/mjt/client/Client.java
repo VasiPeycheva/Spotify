@@ -1,41 +1,32 @@
 package bg.sofia.uni.fmi.mjt.client;
 
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import bg.sofia.uni.fmi.mjt.Logger.FileLogger;
+import bg.sofia.uni.fmi.mjt.Logger.Level;
+import bg.sofia.uni.fmi.mjt.Logger.Logger;
 
 public class Client {
 
 	private String LOG_FILENAME = "client_log.txt";
-	private PrintWriter errorOutput;
 	private int PORT = 3333;
 	private String HOST = "localhost";
 	private Socket socket;
+	private Logger logger;
 
-	/**
-	 * @param errorOutput
-	 *            autoflushable output for error message
-	 *
-	 */
 	public Client() {
-		try {
-			errorOutput = new PrintWriter(new FileWriter(LOG_FILENAME, false), true);
-		} catch (FileNotFoundException e) {
-			System.err.println("> Failed to open " + LOG_FILENAME + " (FILE NOT FOUND)");
-		} catch (IOException e) {
-			System.err.println("> Failed to open " + LOG_FILENAME + " (INTERNAL ERROR)");
-		}
+
+		logger = new FileLogger(LOG_FILENAME);
 
 		try {
 			socket = new Socket(HOST, PORT);
-			System.out.println("> connected to " + HOST + ":" + PORT);
+			logger.log("connected to " + HOST + ":" + PORT, Level.INFO);
 		} catch (UnknownHostException e) {
-			errorOutput.println("> Failed to create client socket (UNKNOWN HOST)");
+			logger.log("Failed to create client socket (UNKNOWN HOST)", Level.ERROR);
 		} catch (IOException e) {
-			errorOutput.println("> Failed to create client socket (POWER OFF SERVER OR WRONG PORT)");
+			logger.log("Failed to create client socket (POWER OFF SERVER OR WRONG PORT)", Level.ERROR);
 		}
 	}
 

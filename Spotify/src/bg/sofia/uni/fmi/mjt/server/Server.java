@@ -1,13 +1,14 @@
 package bg.sofia.uni.fmi.mjt.server;
 
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import bg.sofia.uni.fmi.mjt.Logger.FileLogger;
+import bg.sofia.uni.fmi.mjt.Logger.Level;
+import bg.sofia.uni.fmi.mjt.Logger.Logger;
 
 public class Server {
 
@@ -16,26 +17,15 @@ public class Server {
 	private String LOG_FILENAME = "server_log.txt";
 	private ServerSocket serverSocket;
 	private ExecutorService tasks;
-	private PrintWriter errorOutput;
+	private Logger logger;
 
-	/**
-	 * @param errorOutput
-	 *            autoflushable output for error message
-	 *
-	 */
 	public Server() {
-		try {
-			errorOutput = new PrintWriter(new FileWriter(LOG_FILENAME, false), true);
-		} catch (FileNotFoundException e) {
-			System.err.println("> Failed to open " + LOG_FILENAME + " (FILE NOT FOUND)");
-		} catch (IOException e) {
-			System.err.println("> Failed to open " + LOG_FILENAME + " (INTERNAL ERROR)");
-		}
-
+		logger = new FileLogger(LOG_FILENAME);
 		try {
 			serverSocket = new ServerSocket(PORT);
+			logger.log("Server is running on localhost:" + PORT, Level.INFO);
 		} catch (IOException e) {
-			errorOutput.println("> Failed to open server socket");
+			logger.log("Failed to open server socket", Level.ERROR);
 		}
 
 		tasks = Executors.newFixedThreadPool(THREAD_NUMBER);
@@ -45,10 +35,10 @@ public class Server {
 		while (true) {
 			try {
 				Socket s = serverSocket.accept();
-				System.out.println("> connected : user " + s.getInetAddress());
+				logger.log("connected : user " + s.getInetAddress(), Level.INFO);
 				// execute
 			} catch (IOException e) {
-				errorOutput.println("> Failed to accept client connection");
+				logger.log("Failed to accept client connection", Level.ERROR);
 			}
 		}
 
