@@ -33,7 +33,7 @@ public class UsersDatabase {
 		loadUsers();
 	}
 
-	public boolean register(String username, String password) throws UserAlreadyExistException {
+	public void register(String username, String password) throws UserAlreadyExistException {
 		synchronized (users) {
 			if (users.containsKey(username)) {
 				logger.log("username <" + username + "> already exist!", Level.INFO);
@@ -47,7 +47,7 @@ public class UsersDatabase {
 		}
 	}
 
-	public boolean login(String username, String password) throws UserNotRegisteredException, WrongPasswordException {
+	public void login(String username, String password) throws UserNotRegisteredException, WrongPasswordException {
 		if (users.containsKey(username)) {
 			Integer check = users.get(username);
 			if (check.equals(password.hashCode())) {
