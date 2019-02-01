@@ -1,0 +1,4 @@
+INFO > Server is running on localhost:3333
+INFO > connected : user /127.0.0.1
+INFO > user <vasi> have been successfully registered!
+INFO > user <vasi> logged successfully!
