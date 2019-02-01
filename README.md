@@ -1,4 +1,4 @@
-## Final project for Java Technology course. 
+## Final project for Modern Java Technology course. 
 
 ----------------------------------
 
