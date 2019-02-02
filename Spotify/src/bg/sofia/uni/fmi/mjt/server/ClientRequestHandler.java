@@ -37,41 +37,45 @@ public class ClientRequestHandler implements Runnable {
 
 	@Override
 	public void run() {
-		connect();
+		establishConnection();
 	}
 
-	private void connect() {
+	private void establishConnection() {
 		try {
-			String line = null;
-			while ((line = read.readLine()) != null) {
-				String[] token = line.split(" ");
-
-				if (token[0].equalsIgnoreCase("login")) {
-					try {
-						users.login(token[1], token[2]);
-						write.println("> Successfully logged in");
-						return;
-					} catch (UserNotRegisteredException | WrongPasswordException error) {
-						write.println(error.getMessage());
-					}
-				} else if (token[0].equalsIgnoreCase("register")) {
-					try {
-						users.register(token[1], token[2]);
-						write.println("> Successfully registered, please login");
-					} catch (UserAlreadyExistException error) {
-						write.println(error.getMessage());
-					}
-				} else if (token[0].equalsIgnoreCase("exit")) {
-					write.println("> Successfully exit");
+			String input = null;
+			while ((input = read.readLine()) != null) {
+				if (connect(input)) {
 					return;
-				} else {
-					write.println("> Please REGISTER or LOGIN first");
 				}
-
 			}
 		} catch (IOException e) {
 			logger.log("unable to get client request", Level.ERROR);
 		}
 	}
 
+	private boolean connect(String line) {
+		String[] token = line.split(" ");
+		if (token[0].equalsIgnoreCase("login")) {
+			try {
+				users.login(token[1], token[2]);
+				write.println("> Successfully logged in");
+				return true;
+			} catch (UserNotRegisteredException | WrongPasswordException error) {
+				write.println(error.getMessage());
+			}
+		} else if (token[0].equalsIgnoreCase("register")) {
+			try {
+				users.register(token[1], token[2]);
+				write.println("> Successfully registered, please login");
+			} catch (UserAlreadyExistException error) {
+				write.println(error.getMessage());
+			}
+		} else if (token[0].equalsIgnoreCase("exit")) {
+			write.println("> Successfully exit");
+			// TODO
+		} else {
+			write.println("> Please REGISTER or LOGIN first");
+		}
+		return false;
+	}
 }

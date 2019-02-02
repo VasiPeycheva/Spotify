@@ -42,7 +42,6 @@ public class UsersDatabase {
 				users.put(username, password.hashCode());
 				logger.log("user <" + username + "> have been successfully registered!", Level.INFO);
 				saveUser(username, password);
-				return true;
 			}
 		}
 	}
@@ -52,7 +51,7 @@ public class UsersDatabase {
 			Integer check = users.get(username);
 			if (check.equals(password.hashCode())) {
 				logger.log("user <" + username + "> logged successfully!", Level.INFO);
-				return true;
+				return;
 			} else {
 				logger.log("user <" + username + "> login failed - wrong password!", Level.INFO);
 				throw new WrongPasswordException();
@@ -63,7 +62,7 @@ public class UsersDatabase {
 	}
 
 	private void saveUser(String username, String password) {
-		write.println(username + ":" + "password");
+		write.println(username + ":" + password.hashCode());
 	}
 
 	private void loadUsers() {

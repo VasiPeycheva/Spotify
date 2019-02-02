@@ -1,2 +1,0 @@
-INFO > connected to localhost:3333
-ERROR > Unable to get server response
