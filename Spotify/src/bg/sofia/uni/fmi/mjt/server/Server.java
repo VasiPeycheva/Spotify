@@ -25,7 +25,7 @@ public class Server {
 		logger = new FileLogger(LOG_FILENAME);
 		try {
 			serverSocket = new ServerSocket(PORT);
-			logger.log("Server is running on localhost:" + PORT, Level.INFO);
+			logger.log("server is running on localhost:" + PORT, Level.INFO);
 		} catch (IOException e) {
 			logger.log("Failed to open server socket", Level.ERROR);
 		}

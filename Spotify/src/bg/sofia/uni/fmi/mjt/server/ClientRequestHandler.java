@@ -59,6 +59,7 @@ public class ClientRequestHandler implements Runnable {
 			try {
 				users.login(token[1], token[2]);
 				write.println("> Successfully logged in");
+				logger.log("user <" + token[1] + "> successfully logged in", Level.INFO);
 				return true;
 			} catch (UserNotRegisteredException | WrongPasswordException error) {
 				write.println(error.getMessage());
@@ -67,6 +68,7 @@ public class ClientRequestHandler implements Runnable {
 			try {
 				users.register(token[1], token[2]);
 				write.println("> Successfully registered, please login");
+				logger.log("user <" + token[1] + "> successfully registered", Level.INFO);
 			} catch (UserAlreadyExistException error) {
 				write.println(error.getMessage());
 			}
