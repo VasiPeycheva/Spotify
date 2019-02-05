@@ -19,7 +19,7 @@ public class UsersDatabase {
 
 	private final String USERS_FILENAME = "users_file.txt";
 	private PrintWriter write;
-	private Map<String, Integer> users;
+	private Map<String, String> users;
 	private Logger logger;
 
 	public UsersDatabase(Logger logger) {
@@ -39,7 +39,7 @@ public class UsersDatabase {
 				logger.log("username <" + username + "> already exist!", Level.INFO);
 				throw new UserAlreadyExistException(username);
 			} else {
-				users.put(username, password.hashCode());
+				users.put(username, HashGenerator.getHash(password, logger));
 				logger.log("user <" + username + "> have been successfully registered!", Level.INFO);
 				saveUser(username, password);
 			}
@@ -48,8 +48,8 @@ public class UsersDatabase {
 
 	public void login(String username, String password) throws UserNotRegisteredException, WrongPasswordException {
 		if (users.containsKey(username)) {
-			Integer check = users.get(username);
-			if (check.equals(password.hashCode())) {
+			String check = users.get(username);
+			if (check.equals(HashGenerator.getHash(password, logger))) {
 				logger.log("user <" + username + "> logged successfully!", Level.INFO);
 				return;
 			} else {
@@ -62,7 +62,7 @@ public class UsersDatabase {
 	}
 
 	private void saveUser(String username, String password) {
-		write.println(username + ":" + password.hashCode());
+		write.println(username + ":" + HashGenerator.getHash(password, logger));
 	}
 
 	private void loadUsers() {
@@ -76,7 +76,7 @@ public class UsersDatabase {
 		try {
 			while ((line = read.readLine()) != null) {
 				String[] tokens = line.split(":");
-				users.put(tokens[0], Integer.parseInt(tokens[1]));
+				users.put(tokens[0], tokens[1]);
 			}
 		} catch (IOException e) {
 			logger.log("Failed to load users database (INTERNAL ERROR)", Level.ERROR);
