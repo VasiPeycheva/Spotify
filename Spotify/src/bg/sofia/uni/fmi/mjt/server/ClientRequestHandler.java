@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import bg.sofia.uni.fmi.mjt.database.music.library.MusicLibrary;
 import bg.sofia.uni.fmi.mjt.database.users.UsersDatabase;
 import bg.sofia.uni.fmi.mjt.database.users.exeptions.UserAlreadyExistException;
 import bg.sofia.uni.fmi.mjt.database.users.exeptions.UserNotRegisteredException;
@@ -19,10 +20,12 @@ public class ClientRequestHandler implements Runnable {
 	private BufferedReader read;
 	private Logger logger;
 	private UsersDatabase users;
+	private MusicLibrary library;
 
-	public ClientRequestHandler(Socket s, Logger logger, UsersDatabase users) {
+	public ClientRequestHandler(Socket s, Logger logger, UsersDatabase users, MusicLibrary library) {
 		this.logger = logger;
 		this.users = users;
+		this.library = library;
 		try {
 			read = new BufferedReader(new InputStreamReader(s.getInputStream()));
 		} catch (IOException e) {
@@ -49,7 +52,7 @@ public class ClientRequestHandler implements Runnable {
 				}
 			}
 		} catch (IOException e) {
-			logger.log("unable to get client request", Level.ERROR);
+			logger.log("unable to get client request while establishing connection", Level.ERROR);
 		}
 	}
 

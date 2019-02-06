@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import bg.sofia.uni.fmi.mjt.database.music.library.MusicLibrary;
 import bg.sofia.uni.fmi.mjt.database.users.UsersDatabase;
 import bg.sofia.uni.fmi.mjt.logger.FileLogger;
 import bg.sofia.uni.fmi.mjt.logger.Level;
@@ -16,10 +17,12 @@ public class Server {
 	private int PORT = 3333;
 	private int THREAD_NUMBER = 20;
 	private String LOG_FILENAME = "server_log.txt";
+	private String LIBRARY_PATH = "resources";
 	private ServerSocket serverSocket;
 	private ExecutorService tasks;
 	private Logger logger;
 	private UsersDatabase users;
+	private MusicLibrary library;
 
 	public Server() {
 		logger = new FileLogger(LOG_FILENAME);
@@ -32,6 +35,7 @@ public class Server {
 
 		tasks = Executors.newFixedThreadPool(THREAD_NUMBER);
 		users = new UsersDatabase(logger);
+		library = new MusicLibrary(LIBRARY_PATH, logger);
 	}
 
 	public void start() {
@@ -39,7 +43,7 @@ public class Server {
 			try {
 				Socket s = serverSocket.accept();
 				logger.log("connected : user " + s.getInetAddress(), Level.INFO);
-				ClientRequestHandler request = new ClientRequestHandler(s, logger, users);
+				ClientRequestHandler request = new ClientRequestHandler(s, logger, users, library);
 				tasks.execute(request);
 			} catch (IOException e) {
 				logger.log("Failed to accept client connection", Level.ERROR);
