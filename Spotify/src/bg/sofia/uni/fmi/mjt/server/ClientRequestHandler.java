@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import bg.sofia.uni.fmi.mjt.database.music.library.MusicLibrary;
 import bg.sofia.uni.fmi.mjt.database.users.UsersDatabase;
@@ -18,9 +19,9 @@ public class ClientRequestHandler implements Runnable {
 
 	private PrintWriter write;
 	private BufferedReader read;
-	private Logger logger;
 	private UsersDatabase users;
 	private MusicLibrary library;
+	private Logger logger;
 
 	public ClientRequestHandler(Socket s, Logger logger, UsersDatabase users, MusicLibrary library) {
 		this.logger = logger;
@@ -41,6 +42,19 @@ public class ClientRequestHandler implements Runnable {
 	@Override
 	public void run() {
 		establishConnection();
+		try {
+			String input = null;
+			while ((input = read.readLine()) != null) {
+				String[] tokens = input.split(" ");
+				if (tokens[0].equals("search")) {
+					search(tokens[1]);
+				} else if (tokens[0].equals("top")) {
+					top(Integer.parseInt(tokens[1]));
+				}
+			}
+		} catch (IOException e) {
+			logger.log("unable to get client request", Level.ERROR);
+		}
 	}
 
 	private void establishConnection() {
@@ -53,6 +67,27 @@ public class ClientRequestHandler implements Runnable {
 			}
 		} catch (IOException e) {
 			logger.log("unable to get client request while establishing connection", Level.ERROR);
+		}
+	}
+
+	private void search(String keyword) {
+		String result = library.search(keyword);
+		if (result.equals("")) {
+			write.println(("no match"));
+		} else {
+			write.println(result);
+		}
+
+	}
+
+	private void top(int n) {
+		ArrayList<String> result = (ArrayList<String>) library.top(n);
+		if (result.isEmpty()) {
+			write.println("We cannot find the " + n + " best hits");
+			return;
+		}
+		for (String bestHits : library.top(n)) {
+			write.println(bestHits);
 		}
 	}
 
