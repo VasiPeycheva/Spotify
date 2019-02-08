@@ -22,18 +22,20 @@ public class ClientRequestHandler implements Runnable {
 	private UsersDatabase users;
 	private MusicLibrary library;
 	private Logger logger;
+	private Socket socket;
 
-	public ClientRequestHandler(Socket s, Logger logger, UsersDatabase users, MusicLibrary library) {
+	public ClientRequestHandler(Socket socket, Logger logger, UsersDatabase users, MusicLibrary library) {
 		this.logger = logger;
 		this.users = users;
 		this.library = library;
+		this.socket = socket;
 		try {
-			read = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch (IOException e) {
 			logger.log("Unable to get socket input stream", Level.ERROR);
 		}
 		try {
-			write = new PrintWriter(s.getOutputStream(), true);
+			write = new PrintWriter(socket.getOutputStream(), true);
 		} catch (IOException e) {
 			logger.log("Unable to get socket output stream", Level.ERROR);
 		}
@@ -45,11 +47,13 @@ public class ClientRequestHandler implements Runnable {
 		try {
 			String input = null;
 			while ((input = read.readLine()) != null) {
-				String[] tokens = input.split(" ");
+				String[] tokens = input.split(":");
 				if (tokens[0].equals("search")) {
 					search(tokens[1]);
 				} else if (tokens[0].equals("top")) {
 					top(Integer.parseInt(tokens[1]));
+				} else if (tokens[0].equals("play")) {
+					library.play(tokens[1], socket);
 				}
 			}
 		} catch (IOException e) {
