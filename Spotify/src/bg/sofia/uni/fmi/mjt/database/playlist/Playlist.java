@@ -10,28 +10,24 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
+import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.SongAlreadyExistException;
 import bg.sofia.uni.fmi.mjt.logger.Level;
 import bg.sofia.uni.fmi.mjt.logger.Logger;
 
 public class Playlist {
-	private String owner;
-	private String playlistName;
 	private Set<String> playlist;
 	private PrintWriter write;
 	private Logger logger;
 
-	public Playlist(String owner, String playlistName, Logger logger) {
-		this.owner = owner;
-		this.playlistName = playlistName;
+	public Playlist(File file, Logger logger) {
 		this.logger = logger;
 		playlist = new HashSet<>();
-		String fileName = getFilename();
 		try {
-			write = new PrintWriter(new FileOutputStream(fileName, true), true);
+			write = new PrintWriter(new FileOutputStream(file, true), true);
 		} catch (FileNotFoundException e) {
-			this.logger.log("Failed to open " + fileName + "(FILE NOT FOUND)", Level.ERROR);
+			this.logger.log("Failed to open " + file + "(FILE NOT FOUND)", Level.ERROR);
 		}
-		loadFile(fileName);
+		loadFile(file);
 	}
 
 	public String getAllSongs() {
@@ -43,12 +39,12 @@ public class Playlist {
 		return result.toString();
 	}
 
-	public boolean addSong(String name) {
+	public void addSong(String name) throws SongAlreadyExistException {
 		if (playlist.add(name)) {
 			saveToFile(name);
-			return true;
 		} else {
-			return false;
+			logger.log(name + " already exists ", Level.WARINING);
+			throw new SongAlreadyExistException(name);
 		}
 	}
 
@@ -56,28 +52,20 @@ public class Playlist {
 		write.println(name);
 	}
 
-	private void loadFile(String fileName) {
+	private void loadFile(File file) {
 		try {
-			BufferedReader read = new BufferedReader(new FileReader(new File(fileName)));
+			BufferedReader read = new BufferedReader(new FileReader(file));
 			String name = null;
 			while ((name = read.readLine()) != null) {
-				addSong(name);
+				playlist.add(name);
 			}
+			read.close();
 		} catch (FileNotFoundException e) {
-			logger.log("Failed to open " + fileName + "(FILE NOT FOUND)", Level.ERROR);
+			logger.log("Failed to open " + file.getName() + "(FILE NOT FOUND)", Level.ERROR);
 		} catch (IOException e) {
-			logger.log("Failed to load song from " + fileName, Level.ERROR);
+			logger.log("Failed to load song from " + file.getName(), Level.ERROR);
 		}
 
-	}
-
-	private String getFilename() {
-		StringBuilder filename = new StringBuilder();
-		filename.append(owner);
-		filename.append('_');
-		filename.append(playlistName);
-		filename.append("_.txt");
-		return filename.toString();
 	}
 
 }

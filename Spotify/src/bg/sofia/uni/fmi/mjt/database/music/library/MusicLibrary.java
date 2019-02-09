@@ -1,11 +1,9 @@
 package bg.sofia.uni.fmi.mjt.database.music.library;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -67,14 +65,14 @@ public class MusicLibrary {
 
 	public void play(String songName, Socket socket) {
 		OutputStream userOutputStream = null;
-		BufferedReader read = null;
 		try {
-			read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			userOutputStream = socket.getOutputStream();
 		} catch (IOException e1) {
 			logger.log("Failed accessing client socket", Level.ERROR);
 		}
+		// TODO:CHECK IF SONGNAME EXIST
 		String songPath = songs.get(songName).path;
+		songs.get(songName).hitRate++;
 		File song = new File(songPath);
 		try {
 			AudioFormat format = AudioSystem.getAudioInputStream(song).getFormat();

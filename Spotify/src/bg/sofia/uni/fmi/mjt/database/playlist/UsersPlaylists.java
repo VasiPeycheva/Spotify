@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.PlaylistDoesntExistException;
+import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.SongAlreadyExistException;
+import bg.sofia.uni.fmi.mjt.logger.Level;
 import bg.sofia.uni.fmi.mjt.logger.Logger;
 
 public class UsersPlaylists {
@@ -13,25 +16,41 @@ public class UsersPlaylists {
 	 */
 	private Map<String, Map<String, Playlist>> database;
 	private Logger logger;
+	private String folder;
 
 	public UsersPlaylists(String rootFolder, Logger logger) {
-		// loadPlaylist
 		this.logger = logger;
+		this.folder = rootFolder;
+		loadDatabase(rootFolder);
 	}
 
 	public String showAllSongs(String username, String playlistName) {
 		return database.get(username).get(playlistName).getAllSongs();
 	}
 
-	public boolean addSong(String username, String playlistName, String songName) {
-		return database.get(username).get(playlistName).addSong(songName);
+	public void addSong(String username, String playlistName, String songName)
+			throws SongAlreadyExistException, PlaylistDoesntExistException {
+		if (database.get(username).containsKey(playlistName)) {
+			database.get(username).get(playlistName).addSong(songName);
+		} else {
+			logger.log("Playlist <" + playlistName + "> does not exists!", Level.WARINING);
+			throw new PlaylistDoesntExistException(playlistName);
+		}
 	}
 
 	public boolean create(String username, String playlistName) {
-		if (database.get(username).containsKey(playlistName)) {
-			return false;
+		if (database.containsKey(username)) {
+			if (database.get(username).containsKey(playlistName)) {
+				return false;
+			} else {
+				database.get(username).put(playlistName,
+						new Playlist(new File(getFilename(username, playlistName)), logger));
+				return true;
+			}
 		} else {
-			database.get(username).put(playlistName, new Playlist(username, playlistName, logger));
+			Map<String, Playlist> playlist = new HashMap<>();
+			playlist.put(playlistName, new Playlist(new File(getFilename(username, playlistName)), logger));
+			database.put(username, playlist);
 			return true;
 		}
 	}
@@ -45,9 +64,20 @@ public class UsersPlaylists {
 			String username = token[0];
 			String playlistName = token[1];
 			Map<String, Playlist> playlist = new HashMap<>();
-			playlist.put(playlistName, new Playlist(username, playlistName, logger));
+			playlist.put(playlistName, new Playlist(f, logger));
 			database.put(username, playlist);
 		}
+	}
+
+	private String getFilename(String owner, String playlistName) {
+		StringBuilder filename = new StringBuilder();
+		filename.append(folder);
+		filename.append("\\\\");
+		filename.append(owner);
+		filename.append('_');
+		filename.append(playlistName);
+		filename.append("_.txt");
+		return filename.toString();
 	}
 
 }

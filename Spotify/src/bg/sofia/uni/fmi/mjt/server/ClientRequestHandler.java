@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 
-import bg.sofia.uni.fmi.mjt.database.music.library.MusicLibrary;
 import bg.sofia.uni.fmi.mjt.database.users.UsersDatabase;
 import bg.sofia.uni.fmi.mjt.database.users.exeptions.UserAlreadyExistException;
 import bg.sofia.uni.fmi.mjt.database.users.exeptions.UserNotRegisteredException;
@@ -20,14 +18,15 @@ public class ClientRequestHandler implements Runnable {
 	private PrintWriter write;
 	private BufferedReader read;
 	private UsersDatabase users;
-	private MusicLibrary library;
+	private Server server;
 	private Logger logger;
 	private Socket socket;
+	private String username;
 
-	public ClientRequestHandler(Socket socket, Logger logger, UsersDatabase users, MusicLibrary library) {
+	public ClientRequestHandler(Socket socket, Logger logger, UsersDatabase users, Server server) {
 		this.logger = logger;
 		this.users = users;
-		this.library = library;
+		this.server = server;
 		this.socket = socket;
 		try {
 			read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -49,12 +48,21 @@ public class ClientRequestHandler implements Runnable {
 			while ((input = read.readLine()) != null) {
 				String[] tokens = input.split(":");
 				if (tokens[0].equals("search")) {
-					search(tokens[1]);
+					server.search(tokens[1], write);
 				} else if (tokens[0].equals("top")) {
-					top(Integer.parseInt(tokens[1]));
+					server.top(Integer.parseInt(tokens[1]), write);
 				} else if (tokens[0].equals("play")) {
-					library.play(tokens[1], socket);
+					server.play(tokens[1], socket);
+				} else if (tokens[0].equals("show")) {
+					server.show(username, tokens[1], write);
+				} else if (tokens[0].equals("add")) {
+					server.addSong(username, tokens[1], tokens[2], write);
+				} else if (tokens[0].equals("create")) {
+					server.create(username, tokens[1], write);
+				} else {
+					write.println("Command not found");
 				}
+
 			}
 		} catch (IOException e) {
 			logger.log("unable to get client request", Level.ERROR);
@@ -74,32 +82,12 @@ public class ClientRequestHandler implements Runnable {
 		}
 	}
 
-	private void search(String keyword) {
-		String result = library.search(keyword);
-		if (result.equals("")) {
-			write.println(("no match"));
-		} else {
-			write.println(result);
-		}
-
-	}
-
-	private void top(int n) {
-		ArrayList<String> result = (ArrayList<String>) library.top(n);
-		if (result.isEmpty()) {
-			write.println("We cannot find the " + n + " best hits");
-			return;
-		}
-		for (String bestHits : library.top(n)) {
-			write.println(bestHits);
-		}
-	}
-
 	private boolean connect(String line) {
 		String[] token = line.split(" ");
 		if (token[0].equalsIgnoreCase("login")) {
 			try {
 				users.login(token[1], token[2]);
+				username = token[1];
 				write.println("> Successfully logged in");
 				logger.log("user <" + token[1] + "> successfully logged in", Level.INFO);
 				return true;
