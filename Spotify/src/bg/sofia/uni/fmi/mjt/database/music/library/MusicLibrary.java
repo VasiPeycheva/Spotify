@@ -45,7 +45,7 @@ public class MusicLibrary {
 	}
 
 	public Collection<String> top(int n) {
-		return songs.entrySet().stream().sorted((x, y) -> Integer.compare(x.getValue().hitRate, y.getValue().hitRate))
+		return songs.entrySet().stream().sorted((x, y) -> Integer.compare(y.getValue().hitRate, x.getValue().hitRate))
 				.map(x -> x.getKey()).limit(n).collect(Collectors.toList());
 	}
 
@@ -53,9 +53,6 @@ public class MusicLibrary {
 		File directory = new File(libraryPath);
 		File[] contents = directory.listFiles();
 		for (File f : contents) {
-			if (f.isDirectory()) {
-				loadSongs(f.getPath());
-			}
 			if (f.isFile()) {
 				songs.put(f.getName(), new SongInfo(f.getAbsolutePath()));
 			}
@@ -64,33 +61,49 @@ public class MusicLibrary {
 	}
 
 	public void play(String songName, Socket socket) {
-		OutputStream userOutputStream = null;
+		OutputStream out = null;
+
 		try {
-			userOutputStream = socket.getOutputStream();
-		} catch (IOException e1) {
+			out = socket.getOutputStream();
+		} catch (IOException e) {
 			logger.log("Failed accessing client socket", Level.ERROR);
 		}
-		// TODO:CHECK IF SONGNAME EXIST
+
 		String songPath = songs.get(songName).path;
-		songs.get(songName).hitRate++;
+		if (songPath == null) {
+			logger.log(songName + " is not in the Music Library", Level.WARINING);
+			return;
+		}
+		synchronized (songs.get(songName)) {
+			songs.get(songName).hitRate++;
+		}
+
 		File song = new File(songPath);
 		try {
 			AudioFormat format = AudioSystem.getAudioInputStream(song).getFormat();
-			synchronized (userOutputStream) {
-				prepareStream(userOutputStream, format);
-				InputStream in = (new FileInputStream(song));
-				byte[] data = new byte[1024];
-				int bytesRead = 0;
-				while (true) {
-					bytesRead = in.read(data);
-					if (bytesRead == -1)
-						break;
-					userOutputStream.write(data);
-				}
-				in.close();
+			synchronized (out) {
+				prepareStream(out, format);
+				streamSong(out, song);
 			}
-		} catch (UnsupportedAudioFileException | IOException e) {
-			logger.log("Error while streaming song <" + songName + "> (sending audio format)", Level.ERROR);
+		} catch (UnsupportedAudioFileException e) {
+			logger.log("Error while streaming song <" + songName + "> (unsupported audio format)", Level.ERROR);
+		} catch (IOException e) {
+			logger.log("Error while streaming song <" + songName + "> (IO)", Level.ERROR);
+		}
+	}
+
+	private void streamSong(OutputStream out, File song) {
+		try (InputStream in = (new FileInputStream(song))) {
+			byte[] data = new byte[1024];
+			int bytesRead = 0;
+			while (true) {
+				bytesRead = in.read(data);
+				if (bytesRead == -1)
+					break;
+				out.write(data);
+			}
+		} catch (IOException e) {
+			logger.log("Failed streaming <" + song.getName() + ">", Level.ERROR);
 		}
 	}
 
@@ -105,5 +118,4 @@ public class MusicLibrary {
 		write.println(format.getFrameRate());
 		write.println(format.isBigEndian());
 	}
-
 }

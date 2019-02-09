@@ -16,7 +16,6 @@ public class Client {
 	private Socket socket;
 	private Logger logger;
 
-	// TODO handle power off server
 	public Client() {
 		logger = new FileLogger(LOG_FILENAME);
 		try {
@@ -34,15 +33,13 @@ public class Client {
 		ServerWriter writer = null;
 		try {
 			reader = new ServerReader(socket.getInputStream(), logger);
-		} catch (IOException e) {
-			logger.log("Unable to get socket input stream", Level.ERROR);
-		}
-
-		try {
 			writer = new ServerWriter(socket.getOutputStream(), logger);
 		} catch (IOException e) {
-			logger.log("Unable to get socket output stream", Level.ERROR);
+			logger.log("Unable to get socket stream", Level.ERROR);
+		} catch (NullPointerException nullException) {
+			logger.log("Server is not responding", Level.ERROR);
 		}
+
 		Thread requestHandler = new Thread(writer);
 		Thread responseHandler = new Thread(reader);
 
@@ -51,8 +48,8 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-		Client c = new Client();
-		c.start();
+		Client client = new Client();
+		client.start();
 	}
 
 }
