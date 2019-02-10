@@ -20,11 +20,11 @@ import bg.sofia.uni.fmi.mjt.logger.Logger;
 
 public class Server {
 
-	private int PORT = 3333;
-	private int THREAD_NUMBER = 20;
-	private String LOG_FILENAME = "server_log.txt";
-	private String LIBRARY_PATH = "resources";
-	private String PLAYLIST_PATH = "resources\\\\playlists";
+	private final int PORT = 3333;
+	private final int THREAD_NUMBER = 20;
+	private final String LOG_FILENAME = "server_log.txt";
+	private final String LIBRARY_PATH = "resources";
+	private final String PLAYLIST_PATH = "resources\\\\playlists";
 
 	private ServerSocket serverSocket;
 	private ExecutorService tasks;

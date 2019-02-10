@@ -10,9 +10,10 @@ import bg.sofia.uni.fmi.mjt.logger.Logger;
 
 public class Client {
 
-	private String LOG_FILENAME = "client_log.txt";
-	private int PORT = 3333;
-	private String HOST = "localhost";
+	private final String LOG_FILENAME = "client_log.txt";
+	private final int PORT = 3333;
+	private final String HOST = "localhost";
+
 	private Socket socket;
 	private Logger logger;
 
