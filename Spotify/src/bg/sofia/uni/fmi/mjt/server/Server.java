@@ -18,6 +18,7 @@ import bg.sofia.uni.fmi.mjt.database.users.UsersDatabase;
 import bg.sofia.uni.fmi.mjt.logger.FileLogger;
 import bg.sofia.uni.fmi.mjt.logger.Level;
 import bg.sofia.uni.fmi.mjt.logger.Logger;
+import bg.sofia.uni.fmi.mjt.server.exceptions.PortAlreadyTaken;
 
 public class Server {
 
@@ -34,13 +35,14 @@ public class Server {
 	private UsersDatabase users;
 	private MusicLibrary library;
 
-	public Server() {
+	public Server() throws PortAlreadyTaken {
 		logger = new FileLogger(LOG_FILENAME);
 		try {
 			serverSocket = new ServerSocket(PORT);
 			logger.log("server is running on localhost:" + PORT, Level.INFO);
 		} catch (IOException e) {
 			logger.log("Failed to open server socket", Level.ERROR);
+			throw new PortAlreadyTaken(PORT);
 		}
 
 		tasks = Executors.newFixedThreadPool(THREAD_NUMBER);
@@ -177,9 +179,14 @@ public class Server {
 	}
 
 	public static void main(String[] args) {
-		Server s = new Server();
+		Server s;
+		try {
+			s = new Server();
+		} catch (PortAlreadyTaken e) {
+			System.out.println(e.getMessage());
+			return;
+		}
 		s.start();
-
 	}
 
 }
