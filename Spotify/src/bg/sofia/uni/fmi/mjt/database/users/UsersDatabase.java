@@ -17,6 +17,7 @@ import bg.sofia.uni.fmi.mjt.logger.Logger;
 
 public class UsersDatabase {
 
+	public final Integer VERIGICATION_ARGC = 3;
 	private final String USERS_FILENAME = "users_file.txt";
 	private PrintWriter write;
 	private Map<String, String> users;
