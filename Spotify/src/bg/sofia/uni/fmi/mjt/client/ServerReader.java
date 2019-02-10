@@ -16,6 +16,12 @@ import javax.sound.sampled.SourceDataLine;
 import bg.sofia.uni.fmi.mjt.logger.Level;
 import bg.sofia.uni.fmi.mjt.logger.Logger;
 
+/**
+ * Listen for Server response
+ * 
+ * @author Vasi Peycheva
+ *
+ */
 public class ServerReader implements Runnable {
 
 	private BufferedReader input;
@@ -50,6 +56,10 @@ public class ServerReader implements Runnable {
 		}
 	}
 
+	/**
+	 * Play client requested song
+	 */
+	// TODO : REPAIR
 	private void play() {
 
 		try {

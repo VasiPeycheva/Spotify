@@ -40,6 +40,15 @@ public class ClientRequestHandler implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * Establish Connection with the user.
+	 * 
+	 * Listen for user requests.
+	 * 
+	 * @see ClientRequestHandler#establishConnection()
+	 * 
+	 */
 	@Override
 	public void run() {
 		establishConnection();
@@ -59,20 +68,22 @@ public class ClientRequestHandler implements Runnable {
 					server.addSong(username, tokens[1], tokens[2], write);
 				} else if (tokens[0].equals("create")) {
 					server.create(username, tokens[1], write);
-				} else if (tokens[0].equals("exit")) {
-					logger.log(username + " successfully exit", Level.INFO);
-					socket.close();
-					break;
 				} else {
 					write.println("Command not found");
 				}
-
 			}
 		} catch (IOException e) {
 			logger.log("unable to get client request", Level.ERROR);
 		}
 	}
 
+	/**
+	 * 
+	 * Make sure that the connection between the user and the server is established
+	 * 
+	 * and the user is logged in the system
+	 * 
+	 */
 	private void establishConnection() {
 		try {
 			String input = null;
@@ -86,6 +97,16 @@ public class ClientRequestHandler implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * Establish connection between server and user ONLY if the user is correctly
+	 * logged in
+	 * 
+	 * @param line
+	 *            - user response
+	 * @return true if the user is logged in the system; false if only register or
+	 *         pass wrong command
+	 */
 	private boolean connect(String line) {
 		String[] token = line.split(" ");
 		if (token[0].equalsIgnoreCase("login")) {

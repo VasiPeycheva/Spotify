@@ -8,6 +8,13 @@ import java.util.Scanner;
 import bg.sofia.uni.fmi.mjt.logger.Level;
 import bg.sofia.uni.fmi.mjt.logger.Logger;
 
+/**
+ * 
+ * Send Server request
+ * 
+ * @author Vasi Peycheva
+ *
+ */
 public class ServerWriter implements Runnable {
 
 	private Scanner read;

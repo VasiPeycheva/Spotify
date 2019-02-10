@@ -14,7 +14,7 @@ import bg.sofia.uni.fmi.mjt.logger.Logger;
 public class UsersPlaylists {
 
 	/**
-	 * Map<username,Map<playlistName, Playlist>>
+	 * Map(username,Map(playlistName, Playlist))
 	 */
 	private Map<String, Map<String, Playlist>> database;
 	private Logger logger;
@@ -29,10 +29,32 @@ public class UsersPlaylists {
 		loadDatabase(rootFolder);
 	}
 
+	/**
+	 * 
+	 * Show all songs in user playlist
+	 * 
+	 * @param username
+	 * @param playlistName
+	 * @return all Songs in user playlist
+	 */
 	public String showAllSongs(String username, String playlistName) {
 		return database.get(username).get(playlistName).getAllSongs();
 	}
 
+	/**
+	 * 
+	 * Add song to user playlist
+	 * 
+	 * @param username
+	 * @param playlistName
+	 * @param songName
+	 * @throws SongAlreadyExistException
+	 *             if song is already in the user given playlist
+	 * @throws PlaylistDoesntExistException
+	 *             if user request to add song in not existing playlist
+	 * @throws SongNotFoundException
+	 *             if song is not in Server {@link MusicLibrary}
+	 */
 	public void addSong(String username, String playlistName, String songName)
 			throws SongAlreadyExistException, PlaylistDoesntExistException, SongNotFoundException {
 		if (!library.search(songName).equals("")) {
@@ -47,6 +69,14 @@ public class UsersPlaylists {
 	}
 
 	// TODO:repair create function
+	/**
+	 * 
+	 * Create @username new playlist
+	 * 
+	 * @param username
+	 * @param playlistName
+	 * @return true if user playlist is successfully created; false otherwise
+	 */
 	public boolean create(String username, String playlistName) {
 		if (database.containsKey(username)) {
 			if (database.get(username).containsKey(playlistName)) {
@@ -64,6 +94,13 @@ public class UsersPlaylists {
 		}
 	}
 
+	/**
+	 * 
+	 * Load all users playlist
+	 * 
+	 * @param folderName
+	 *            - folder with all users playlists
+	 */
 	private void loadDatabase(String folderName) {
 		File folder = new File(folderName);
 		File[] files = folder.listFiles();
@@ -77,6 +114,14 @@ public class UsersPlaylists {
 		}
 	}
 
+	/**
+	 * 
+	 * Construct user playlist filename in the {@link UsersPlaylists#folder}
+	 * 
+	 * @param owner
+	 * @param playlistName
+	 * @return filename of user playlist file
+	 */
 	private String getFilename(String owner, String playlistName) {
 		StringBuilder filename = new StringBuilder();
 		filename.append(folder);

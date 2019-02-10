@@ -31,6 +31,10 @@ public class Playlist {
 		loadFile(file);
 	}
 
+	/**
+	 * 
+	 * @return all songs currently in the playlist
+	 */
 	public String getAllSongs() {
 		StringBuilder result = new StringBuilder();
 		for (String song : playlist) {
@@ -40,6 +44,14 @@ public class Playlist {
 		return result.toString();
 	}
 
+	/**
+	 * 
+	 * Add song in the Playlist set.
+	 * 
+	 * @param name
+	 * @throws SongAlreadyExistException
+	 *             if song is already in the Playlist
+	 */
 	public void addSong(String name) throws SongAlreadyExistException {
 		if (playlist.add(name)) {
 			saveToFile(name);
@@ -53,6 +65,13 @@ public class Playlist {
 		write.println(name);
 	}
 
+	/**
+	 * 
+	 * Load all songs from @file and add it to the current playlist
+	 * 
+	 * @param file
+	 *            - playlist file
+	 */
 	private void loadFile(File file) {
 		try (BufferedReader read = new BufferedReader(new FileReader(file))) {
 			String name = null;

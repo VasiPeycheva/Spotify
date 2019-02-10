@@ -8,9 +8,7 @@ import java.io.PrintWriter;
 public class FileLogger implements Logger {
 
 	/**
-	 * @param output
-	 *            autoflushable output for log message
-	 *
+	 * @output autoflushable output for log message
 	 */
 	private PrintWriter output;
 

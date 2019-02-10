@@ -34,6 +34,13 @@ public class MusicLibrary {
 		loadSongs(path);
 	}
 
+	/**
+	 * 
+	 * Search for all songs in the music library that match the given keyword
+	 * 
+	 * @param keyword
+	 * @return all matching songs with keyword
+	 */
 	public String search(String keyword) {
 		StringBuilder result = new StringBuilder();
 		for (String song : songs.keySet()) {
@@ -44,11 +51,25 @@ public class MusicLibrary {
 		return result.toString();
 	}
 
+	/**
+	 * 
+	 * Check library for @n most streamed songs in the music library
+	 * 
+	 * @param n
+	 *            number of matching results
+	 * @return Collection of all @n most streamed songs
+	 */
 	public Collection<String> top(int n) {
 		return songs.entrySet().stream().sorted((x, y) -> Integer.compare(y.getValue().hitRate, x.getValue().hitRate))
 				.map(x -> x.getKey()).limit(n).collect(Collectors.toList());
 	}
 
+	/**
+	 * 
+	 * Load all songs from library folder
+	 * 
+	 * @param libraryPath
+	 */
 	private void loadSongs(String libraryPath) {
 		File directory = new File(libraryPath);
 		File[] contents = directory.listFiles();
@@ -60,6 +81,12 @@ public class MusicLibrary {
 		logger.log("library <" + libraryPath + "> loaded successfully", Level.INFO);
 	}
 
+	/**
+	 * Stream @songName to user socket ONLY if @songName is in the Music Library
+	 * 
+	 * @param songName
+	 * @param socket
+	 */
 	public void play(String songName, Socket socket) {
 		OutputStream out = null;
 
@@ -92,6 +119,15 @@ public class MusicLibrary {
 		}
 	}
 
+	/**
+	 * 
+	 * Sending bytes of @song to @out
+	 * 
+	 * @param out
+	 *            - user output stream
+	 * @param song
+	 *            - song file to be streamed
+	 */
 	private void streamSong(OutputStream out, File song) {
 		try (InputStream in = (new FileInputStream(song))) {
 			byte[] data = new byte[1024];
@@ -107,6 +143,13 @@ public class MusicLibrary {
 		}
 	}
 
+	/**
+	 * 
+	 * Prepare user for the Audio Format that is going to be send
+	 * 
+	 * @param out
+	 * @param format
+	 */
 	private void prepareStream(OutputStream out, AudioFormat format) {
 		PrintWriter write = new PrintWriter(out, true);
 		write.println("prepare stream");

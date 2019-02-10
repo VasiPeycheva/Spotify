@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import bg.sofia.uni.fmi.mjt.database.music.library.MusicLibrary;
+import bg.sofia.uni.fmi.mjt.database.playlist.Playlist;
 import bg.sofia.uni.fmi.mjt.database.playlist.UsersPlaylists;
 import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.PlaylistDoesntExistException;
 import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.SongAlreadyExistException;
@@ -48,6 +49,9 @@ public class Server {
 		playlists = new UsersPlaylists(PLAYLIST_PATH, library, logger);
 	}
 
+	/**
+	 * @Server start to listen for connections;
+	 */
 	public void start() {
 		while (true) {
 			try {
@@ -62,6 +66,16 @@ public class Server {
 
 	}
 
+	/**
+	 * 
+	 * Send information throw @write for all matching songs from Server Music
+	 * Library with @keyword
+	 * 
+	 * @param keyword
+	 *            - user input keyword
+	 * @param write
+	 *            - user output stream
+	 */
 	public void search(String keyword, PrintWriter write) {
 		String result = library.search(keyword);
 		if (result.equals("")) {
@@ -71,6 +85,16 @@ public class Server {
 		}
 	}
 
+	/**
+	 * 
+	 * Send information throw @write with name of all @n most streamed songs from
+	 * Server Music Library
+	 * 
+	 * @param n
+	 *            - number of wanted results
+	 * @param write
+	 *            - user output stream
+	 */
 	public void top(int n, PrintWriter write) {
 		ArrayList<String> result = (ArrayList<String>) library.top(n);
 		if (result.isEmpty()) {
@@ -82,10 +106,33 @@ public class Server {
 		}
 	}
 
+	/**
+	 * 
+	 * Use Server Music Library method @play()
+	 * 
+	 * @see MusicLibrary#play(String, Socket)
+	 * 
+	 * @param songName
+	 *            - the song that the user wants to play
+	 * @param socket
+	 *            - user socket
+	 */
 	public void play(String songName, Socket socket) {
 		library.play(songName, socket);
 	}
 
+	/**
+	 * 
+	 * Send to user throw @write all songs listed in the given @playlistName
+	 * 
+	 * @see Playlist#getAllSongs()
+	 * 
+	 * @param username
+	 *            - used for authentification
+	 * @param playlistName
+	 * @param write
+	 *            - user output stream
+	 */
 	public void show(String username, String playlistName, PrintWriter write) {
 		String result = playlists.showAllSongs(username, playlistName);
 		if (result.equals("")) {
@@ -95,6 +142,14 @@ public class Server {
 		}
 	}
 
+	/**
+	 * 
+	 * Create new playlist in @username account
+	 * 
+	 * @param username
+	 * @param playlistName
+	 * @param write
+	 */
 	public void create(String username, String playlistName, PrintWriter write) {
 		if (playlists.create(username, playlistName)) {
 			write.println("Successfully created <" + playlistName + ">");
@@ -103,6 +158,15 @@ public class Server {
 		}
 	}
 
+	/**
+	 * 
+	 * Add new song to existing user playlist
+	 * 
+	 * @param username
+	 * @param playlistName
+	 * @param songName
+	 * @param write
+	 */
 	public void addSong(String username, String playlistName, String songName, PrintWriter write) {
 		try {
 			playlists.addSong(username, playlistName, songName);
