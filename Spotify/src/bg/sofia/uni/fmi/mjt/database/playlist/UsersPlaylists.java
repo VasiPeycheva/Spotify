@@ -68,7 +68,6 @@ public class UsersPlaylists {
 		}
 	}
 
-	// TODO:repair create function
 	/**
 	 * 
 	 * Create @username new playlist
