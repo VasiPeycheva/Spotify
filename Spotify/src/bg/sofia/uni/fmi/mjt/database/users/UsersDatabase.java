@@ -66,18 +66,14 @@ public class UsersDatabase {
 	}
 
 	private void loadUsers() {
-		BufferedReader read = null;
 		String line = null;
-		try {
-			read = new BufferedReader(new FileReader(USERS_FILENAME));
-		} catch (FileNotFoundException e) {
-			logger.log("Failed to load users database (FILE NOT FOUND)", Level.ERROR);
-		}
-		try {
+		try (BufferedReader read = new BufferedReader(new FileReader(USERS_FILENAME))) {
 			while ((line = read.readLine()) != null) {
 				String[] tokens = line.split(":");
 				users.put(tokens[0], tokens[1]);
 			}
+		} catch (FileNotFoundException e) {
+			logger.log("Failed to load users database (FILE NOT FOUND)", Level.ERROR);
 		} catch (IOException e) {
 			logger.log("Failed to load users database (INTERNAL ERROR)", Level.ERROR);
 		}

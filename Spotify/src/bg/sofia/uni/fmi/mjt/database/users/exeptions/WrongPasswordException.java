@@ -8,7 +8,7 @@ public class WrongPasswordException extends Exception {
 	private String message = null;
 
 	public WrongPasswordException() {
-		message = "> login failed - wrong password!\n";
+		message = "> Login failed - wrong password!\n";
 	}
 
 	public String getMessage() {

@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import bg.sofia.uni.fmi.mjt.database.music.library.MusicLibrary;
 import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.PlaylistDoesntExistException;
 import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.SongAlreadyExistException;
+import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.SongNotFoundException;
 import bg.sofia.uni.fmi.mjt.logger.Level;
 import bg.sofia.uni.fmi.mjt.logger.Logger;
 
@@ -17,10 +19,13 @@ public class UsersPlaylists {
 	private Map<String, Map<String, Playlist>> database;
 	private Logger logger;
 	private String folder;
+	private MusicLibrary library;
 
-	public UsersPlaylists(String rootFolder, Logger logger) {
+	public UsersPlaylists(String rootFolder, MusicLibrary library, Logger logger) {
 		this.logger = logger;
 		this.folder = rootFolder;
+		this.library = library;
+		database = new HashMap<String, Map<String, Playlist>>();
 		loadDatabase(rootFolder);
 	}
 
@@ -29,7 +34,10 @@ public class UsersPlaylists {
 	}
 
 	public void addSong(String username, String playlistName, String songName)
-			throws SongAlreadyExistException, PlaylistDoesntExistException {
+			throws SongAlreadyExistException, PlaylistDoesntExistException, SongNotFoundException {
+		if (!library.search(songName).equals("")) {
+			throw new SongNotFoundException(songName);
+		}
 		if (database.get(username).containsKey(playlistName)) {
 			database.get(username).get(playlistName).addSong(songName);
 		} else {
@@ -38,6 +46,7 @@ public class UsersPlaylists {
 		}
 	}
 
+	// TODO:repair create function
 	public boolean create(String username, String playlistName) {
 		if (database.containsKey(username)) {
 			if (database.get(username).containsKey(playlistName)) {
@@ -56,7 +65,6 @@ public class UsersPlaylists {
 	}
 
 	private void loadDatabase(String folderName) {
-		database = new HashMap<String, Map<String, Playlist>>();
 		File folder = new File(folderName);
 		File[] files = folder.listFiles();
 		for (File f : files) {

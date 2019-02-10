@@ -10,7 +10,7 @@ public class SongAlreadyExistException extends Exception {
 	private String message = null;
 
 	public SongAlreadyExistException(String song) {
-		message = "> song <" + song + "> already exist \n";
+		message = "> Song <" + song + "> already exist \n";
 	}
 
 	public String getMessage() {

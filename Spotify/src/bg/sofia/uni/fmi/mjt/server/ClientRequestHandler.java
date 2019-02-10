@@ -59,6 +59,10 @@ public class ClientRequestHandler implements Runnable {
 					server.addSong(username, tokens[1], tokens[2], write);
 				} else if (tokens[0].equals("create")) {
 					server.create(username, tokens[1], write);
+				} else if (tokens[0].equals("exit")) {
+					logger.log(username + " successfully exit", Level.INFO);
+					socket.close();
+					break;
 				} else {
 					write.println("Command not found");
 				}
@@ -102,9 +106,6 @@ public class ClientRequestHandler implements Runnable {
 			} catch (UserAlreadyExistException error) {
 				write.println(error.getMessage());
 			}
-		} else if (token[0].equalsIgnoreCase("exit")) {
-			write.println("> Successfully exit");
-			// TODO
 		} else {
 			write.println("> Please REGISTER or LOGIN first");
 		}

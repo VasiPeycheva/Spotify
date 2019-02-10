@@ -12,6 +12,7 @@ import bg.sofia.uni.fmi.mjt.database.music.library.MusicLibrary;
 import bg.sofia.uni.fmi.mjt.database.playlist.UsersPlaylists;
 import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.PlaylistDoesntExistException;
 import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.SongAlreadyExistException;
+import bg.sofia.uni.fmi.mjt.database.playlist.exceptions.SongNotFoundException;
 import bg.sofia.uni.fmi.mjt.database.users.UsersDatabase;
 import bg.sofia.uni.fmi.mjt.logger.FileLogger;
 import bg.sofia.uni.fmi.mjt.logger.Level;
@@ -43,8 +44,8 @@ public class Server {
 
 		tasks = Executors.newFixedThreadPool(THREAD_NUMBER);
 		users = new UsersDatabase(logger);
-		playlists = new UsersPlaylists(PLAYLIST_PATH, logger);
 		library = new MusicLibrary(LIBRARY_PATH, logger);
+		playlists = new UsersPlaylists(PLAYLIST_PATH, library, logger);
 	}
 
 	public void start() {
@@ -106,7 +107,7 @@ public class Server {
 		try {
 			playlists.addSong(username, playlistName, songName);
 			write.println("Successfully added <" + songName + "> in playlist <" + playlistName + "> ");
-		} catch (SongAlreadyExistException | PlaylistDoesntExistException e) {
+		} catch (SongAlreadyExistException | PlaylistDoesntExistException | SongNotFoundException e) {
 			write.println(e.getMessage());
 		}
 	}

@@ -15,6 +15,7 @@ import bg.sofia.uni.fmi.mjt.logger.Level;
 import bg.sofia.uni.fmi.mjt.logger.Logger;
 
 public class Playlist {
+
 	private Set<String> playlist;
 	private PrintWriter write;
 	private Logger logger;
@@ -53,19 +54,16 @@ public class Playlist {
 	}
 
 	private void loadFile(File file) {
-		try {
-			BufferedReader read = new BufferedReader(new FileReader(file));
+		try (BufferedReader read = new BufferedReader(new FileReader(file))) {
 			String name = null;
 			while ((name = read.readLine()) != null) {
 				playlist.add(name);
 			}
-			read.close();
 		} catch (FileNotFoundException e) {
 			logger.log("Failed to open " + file.getName() + "(FILE NOT FOUND)", Level.ERROR);
 		} catch (IOException e) {
 			logger.log("Failed to load song from " + file.getName(), Level.ERROR);
 		}
-
 	}
 
 }

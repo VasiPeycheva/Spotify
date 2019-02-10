@@ -32,12 +32,11 @@ public class Client {
 		ServerReader reader = null;
 		ServerWriter writer = null;
 		try {
-			reader = new ServerReader(socket.getInputStream(), logger);
-			writer = new ServerWriter(socket.getOutputStream(), logger);
-		} catch (IOException e) {
-			logger.log("Unable to get socket stream", Level.ERROR);
+			reader = new ServerReader(socket, logger);
+			writer = new ServerWriter(socket, logger);
 		} catch (NullPointerException nullException) {
 			logger.log("Server is not responding", Level.ERROR);
+			return;
 		}
 
 		Thread requestHandler = new Thread(writer);
