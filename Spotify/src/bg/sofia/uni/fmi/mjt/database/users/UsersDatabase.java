@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import bg.sofia.uni.fmi.mjt.database.users.exeptions.UserAlreadyExistException;
 import bg.sofia.uni.fmi.mjt.database.users.exeptions.UserNotRegisteredException;
@@ -21,11 +22,13 @@ public class UsersDatabase {
 	private final String USERS_FILENAME = "users_file.txt";
 	private PrintWriter write;
 	private Map<String, String> users;
+	private ReentrantReadWriteLock lock;
 	private Logger logger;
 
 	public UsersDatabase(Logger logger) {
 		this.logger = logger;
 		users = new HashMap<>();
+		lock = new ReentrantReadWriteLock();
 		try {
 			write = new PrintWriter(new FileOutputStream(USERS_FILENAME, true), true);
 		} catch (FileNotFoundException e) {
@@ -47,7 +50,8 @@ public class UsersDatabase {
 	 *             if @username is already in the database
 	 */
 	public void register(String username, String password) throws UserAlreadyExistException {
-		synchronized (users) {
+		lock.writeLock().lock();
+		try {
 			if (users.containsKey(username)) {
 				logger.log("username <" + username + "> already exist!", Level.INFO);
 				throw new UserAlreadyExistException(username);
@@ -56,6 +60,8 @@ public class UsersDatabase {
 				logger.log("user <" + username + "> have been successfully registered!", Level.INFO);
 				saveUser(username, password);
 			}
+		} finally {
+			lock.writeLock().unlock();
 		}
 	}
 
@@ -71,18 +77,23 @@ public class UsersDatabase {
 	 *             if @username type wrong password
 	 */
 	public void login(String username, String password) throws UserNotRegisteredException, WrongPasswordException {
-		if (users.containsKey(username)) {
-			String check = users.get(username);
-			if (check.equals(HashGenerator.getHash(password, logger))) {
-				logger.log("user <" + username + "> logged successfully!", Level.INFO);
-				return;
-			} else {
-				logger.log("user <" + username + "> login failed - wrong password!", Level.INFO);
-				throw new WrongPasswordException();
+		lock.readLock().lock();
+		try {
+			if (users.containsKey(username)) {
+				String check = users.get(username);
+				if (check.equals(HashGenerator.getHash(password, logger))) {
+					logger.log("user <" + username + "> logged successfully!", Level.INFO);
+					return;
+				} else {
+					logger.log("user <" + username + "> login failed - wrong password!", Level.INFO);
+					throw new WrongPasswordException();
+				}
 			}
+			logger.log("user <" + username + "> is not registered!", Level.INFO);
+			throw new UserNotRegisteredException(username);
+		} finally {
+			lock.readLock().unlock();
 		}
-		logger.log("user <" + username + "> is not registered!", Level.INFO);
-		throw new UserNotRegisteredException(username);
 	}
 
 	/**
