@@ -64,6 +64,10 @@ public class MusicLibrary {
 				.map(x -> x.getKey()).limit(n).collect(Collectors.toList());
 	}
 
+	public boolean songExist(String song) {
+		return song.contains(song);
+	}
+
 	/**
 	 * 
 	 * Load all songs from library folder

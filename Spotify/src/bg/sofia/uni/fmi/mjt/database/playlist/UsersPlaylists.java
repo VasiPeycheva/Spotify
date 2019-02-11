@@ -57,7 +57,7 @@ public class UsersPlaylists {
 	 */
 	public void addSong(String username, String playlistName, String songName)
 			throws SongAlreadyExistException, PlaylistDoesntExistException, SongNotFoundException {
-		if (!library.search(songName).equals("")) {
+		if (!library.songExist(songName)) {
 			throw new SongNotFoundException(songName);
 		}
 		if (database.get(username).containsKey(playlistName)) {

@@ -135,7 +135,7 @@ public class ClientRequestHandler implements Runnable {
 	}
 
 	private void createPlaylist(String line) {
-		String playlist = getFirstWord(removeFirstWord(line));
+		String playlist = removeFirstWord(line);
 		if (playlist.equals(line)) {
 			write.println("> Please enter <playlist name>");
 			return;
